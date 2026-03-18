@@ -184,6 +184,52 @@ If you use Beijing time / 如果你使用北京时间：
 - Use `Send emails daily` when you want the full scheduled behavior or a manual backfill.
   如果你希望获得完整流程结果，或者手动补发某一天的论文，请使用 `Send emails daily`。
 
+### arXiv update schedule and your delivery time
+The workflow follows the arXiv announcement cycle rather than the Beijing calendar day.
+这个工作流跟随的是 arXiv 官方公告批次，而不是北京时间自然日的 00:00-24:00。
+
+According to the arXiv announcement rules:
+根据 arXiv 官方公告规则：
+
+- arXiv accepts submissions continuously, but new papers are announced in batches.
+  arXiv 可以持续接收投稿，但新论文是按批次统一公告的。
+- The announcement cut-off time is 14:00 ET, and the announcement is released at 20:00 ET.
+  每日公告的截稿时间是美东时间 14:00，正式公告发布时间是美东时间 20:00。
+- There are no regular announcements on Friday or Saturday ET.
+  美东时间周五和周六通常没有新的公告批次。
+
+For Beijing time users, 20:00 ET is usually 08:00 or 09:00 the next morning in Beijing, depending on daylight saving time.
+对北京时间用户来说，美东时间 20:00 通常对应北京时间次日 08:00 或 09:00，具体取决于美国夏令时。
+
+This repository is configured to run at 10:00 Beijing time on Monday-Friday, so it can retrieve the full daily announcement batch more reliably.
+本仓库默认设置为每周一到周五北京时间 10:00 运行，这样可以更稳定地获取当天完整的 arXiv 公告批次。
+
+In normal weeks without holidays, your email schedule is:
+在不考虑节假日的正常情况下，你收到邮件的大致节奏如下：
+
+- Monday 10:00 Beijing time: the batch announced by arXiv on Sunday 20:00 ET.
+  周一北京时间 10:00：收到 arXiv 在美东周日 20:00 公告的那一批论文。
+- Tuesday 10:00 Beijing time: the batch announced by arXiv on Monday 20:00 ET.
+  周二北京时间 10:00：收到 arXiv 在美东周一 20:00 公告的那一批论文。
+- Wednesday 10:00 Beijing time: the batch announced by arXiv on Tuesday 20:00 ET.
+  周三北京时间 10:00：收到 arXiv 在美东周二 20:00 公告的那一批论文。
+- Thursday 10:00 Beijing time: the batch announced by arXiv on Wednesday 20:00 ET.
+  周四北京时间 10:00：收到 arXiv 在美东周三 20:00 公告的那一批论文。
+- Friday 10:00 Beijing time: the batch announced by arXiv on Thursday 20:00 ET.
+  周五北京时间 10:00：收到 arXiv 在美东周四 20:00 公告的那一批论文。
+
+Why there is usually no email on Saturday or Sunday / 为什么周六周日通常没有邮件：
+
+- arXiv can still receive submissions during the weekend.
+  arXiv 在周末仍然可以接收投稿。
+- However, those submissions are not announced immediately as a separate public batch.
+  但是这些投稿不会立刻形成一个新的公开公告批次。
+- Since arXiv usually does not publish regular announcements on Friday or Saturday ET, weekend-adjacent submissions are rolled into the next available announcement batch.
+  由于 arXiv 通常不会在美东周五和周六发布常规公告，因此周末前后的投稿会被合并到下一次可用的公告批次中。
+
+In other words, what you receive is the latest official arXiv announcement batch, not a real-time stream of all papers submitted during the Beijing calendar day.
+换句话说，你收到的是 arXiv 最新一次“官方公告批次”的完整论文列表，而不是“北京时间当天实时投稿流”。
+
 ### Backfill a specific date
 If today is `2026-03-18` in Beijing time and you want the papers of `2026-03-16`, follow these steps:
 如果今天是北京时间 `2026-03-18`，而你想获取 `2026-03-16` 的论文，可以按下面步骤操作：
@@ -252,4 +298,3 @@ Distributed under the AGPLv3 License. See `LICENSE` for detail.
 - [pyzotero](https://github.com/urschrei/pyzotero)
 - [arxiv](https://github.com/lukasschwab/arxiv.py)
 - [sentence_transformers](https://github.com/UKPLab/sentence-transformers)
-
