@@ -172,6 +172,53 @@ Then check the log and the receiver email after it finishes.
 
 By default, the main workflow runs at 02:00 UTC on Monday-Friday, which corresponds to 10:00 Beijing time and is late enough to include the full daily arXiv announcement batch. You can change this time by editting the workflow config `.github/workflows/main.yml`.
 
+### Time and backfill notes
+If you use Beijing time / 如果你使用北京时间：
+
+- The scheduled workflow runs at 10:00 Beijing time on Monday-Friday.
+  自动定时任务会在每周一到周五北京时间 10:00 运行。
+- This is intentionally later than the daily arXiv announcement release window, so the workflow can retrieve the full daily batch more reliably.
+  这个时间刻意晚于 arXiv 每日公告发布时间，因此更容易稳定拿到当天完整批次的论文。
+- The `Test` workflow is only for debugging and may not return the full paper list.
+  `Test` workflow 仅用于调试，可能不会返回完整论文列表。
+- Use `Send emails daily` when you want the full scheduled behavior or a manual backfill.
+  如果你希望获得完整流程结果，或者手动补发某一天的论文，请使用 `Send emails daily`。
+
+### Backfill a specific date
+If today is `2026-03-18` in Beijing time and you want the papers of `2026-03-16`, follow these steps:
+如果今天是北京时间 `2026-03-18`，而你想获取 `2026-03-16` 的论文，可以按下面步骤操作：
+
+1. Make sure your `CUSTOM_CONFIG` contains:
+   请确认你的 `CUSTOM_CONFIG` 中包含以下配置：
+```yaml
+executor:
+  debug: ${oc.env:DEBUG,null}
+  target_date: ${oc.env:TARGET_DATE,null}
+  source: ['arxiv']
+```
+
+2. Open your forked repository on GitHub and go to `Actions`.
+   打开你自己的 GitHub 仓库，进入 `Actions` 页面。
+
+3. Select the workflow `Send emails daily`.
+   选择工作流 `Send emails daily`。
+
+4. Click `Run workflow`.
+   点击 `Run workflow`。
+
+5. Fill in the input `target_date` with:
+   在输入框 `target_date` 中填写：
+```text
+2026-03-16
+```
+
+6. Run the workflow and wait for it to finish. The workflow will retrieve the arXiv papers for `2026-03-16`, rerank them, and send the email after completion.
+   运行后等待任务完成。该工作流会检索 `2026-03-16` 的 arXiv 论文、完成排序，并在结束后发送邮件。
+
+>[!TIP]
+> It is recommended to pass `target_date` from the manual workflow input instead of storing `TARGET_DATE` as a long-lived secret. Otherwise, future scheduled runs may keep using the same fixed date until you remove or change that secret.
+> 建议通过手动运行 workflow 时填写 `target_date`，而不是长期把 `TARGET_DATE` 存成 secret。否则之后的定时任务可能会一直重复使用这个固定日期，直到你手动修改或删除该 secret。
+
 ### Local Running
 Supported by [uv](https://github.com/astral-sh/uv), this workflow can easily run on your local device if uv is installed:
 ```bash
