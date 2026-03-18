@@ -40,6 +40,12 @@ To unsubscribe, remove your email in your Github Action setting.
 </html>
 """
 
+def get_paper_page_label(paper: Paper) -> str:
+    if paper.source == "arxiv" and paper.url:
+        paper_id = paper.url.rstrip("/").rsplit("/", 1)[-1]
+        return f"arXiv:{paper_id}"
+    return "Paper page"
+
 def get_empty_html():
   block_template = """
   <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-family: Arial, sans-serif; border: 1px solid #ddd; border-radius: 8px; padding: 16px; background-color: #f9f9f9;">
@@ -52,7 +58,16 @@ def get_empty_html():
   """
   return block_template
 
-def get_block_html(title:str, authors:str, rate:str, tldr:str, pdf_url:str, affiliations:str=None):
+def get_block_html(
+    title:str,
+    authors:str,
+    rate:str,
+    paper_url:str,
+    paper_url_label:str,
+    tldr:str,
+    pdf_url:str,
+    affiliations:str=None,
+):
     affiliations_html = ""
     if affiliations:
         affiliations_html = f"<br><i>{affiliations}</i>"
@@ -76,6 +91,11 @@ def get_block_html(title:str, authors:str, rate:str, tldr:str, pdf_url:str, affi
     </tr>
     <tr>
         <td style="font-size: 14px; color: #333; padding: 8px 0;">
+            <strong>Paper page:</strong> <a href="{paper_url}">{paper_url_label}</a>
+        </td>
+    </tr>
+    <tr>
+        <td style="font-size: 14px; color: #333; padding: 8px 0;">
             <strong>TLDR:</strong> {tldr}
         </td>
     </tr>
@@ -91,6 +111,8 @@ def get_block_html(title:str, authors:str, rate:str, tldr:str, pdf_url:str, affi
         title=title,
         authors=authors,
         rate=rate,
+        paper_url=paper_url,
+        paper_url_label=paper_url_label,
         tldr=tldr,
         pdf_url=pdf_url,
         affiliations_html=affiliations_html,
@@ -134,7 +156,18 @@ def render_email(papers:list[Paper]) -> str:
                 affiliations += ', ...'
         else:
             affiliations = None
-        parts.append(get_block_html(p.title, authors, rate, p.tldr, p.pdf_url, affiliations))
+        parts.append(
+            get_block_html(
+                p.title,
+                authors,
+                rate,
+                p.url,
+                get_paper_page_label(p),
+                p.tldr,
+                p.pdf_url,
+                affiliations,
+            )
+        )
 
     content = '<br>' + '</br><br>'.join(parts) + '</br>'
     return framework.replace('__CONTENT__', content)

@@ -22,6 +22,8 @@ def papers() -> list[Paper]:
 def test_render_email(papers:list[Paper]):
     email_content = render_email(papers)
     assert email_content is not None
+    assert "arXiv:2512.04296" in email_content
+    assert 'href="https://arxiv.org/abs/2512.04296"' in email_content
 
 def test_render_email_without_affiliations():
     paper = Paper(
@@ -39,6 +41,7 @@ def test_render_email_without_affiliations():
     email_content = render_email([paper])
 
     assert "Unknown Affiliation" not in email_content
+    assert "Paper page:" in email_content
 
 @pytest.mark.ci
 def test_send_email(config,papers:list[Paper]):
