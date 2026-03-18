@@ -92,6 +92,28 @@ def glob_match(path:str, pattern:str) -> bool:
     re_pattern = glob.translate(pattern,recursive=True)
     return re.match(re_pattern, path) is not None
 
+def get_target_date(config: DictConfig) -> datetime.date | None:
+    target_date = config.executor.get("target_date")
+    if target_date is None:
+        return None
+
+    target_date = str(target_date).strip()
+    if target_date == "" or target_date.lower() == "null":
+        return None
+
+    try:
+        return datetime.datetime.strptime(target_date, "%Y-%m-%d").date()
+    except ValueError as exc:
+        raise ValueError("executor.target_date must be in YYYY-MM-DD format.") from exc
+
+def build_email_subject(config: DictConfig) -> str:
+    target_date = get_target_date(config)
+    if target_date is None:
+        label = datetime.datetime.now().strftime("%Y/%m/%d")
+    else:
+        label = target_date.strftime("%Y/%m/%d")
+    return f"Daily arXiv {label}"
+
 def send_email(config:DictConfig, html:str):
     sender = config.email.sender
     receiver = config.email.receiver
@@ -105,8 +127,7 @@ def send_email(config:DictConfig, html:str):
     msg = MIMEText(html, 'html', 'utf-8')
     msg['From'] = _format_addr('Github Action <%s>' % sender)
     msg['To'] = _format_addr('You <%s>' % receiver)
-    today = datetime.datetime.now().strftime('%Y/%m/%d')
-    msg['Subject'] = Header(f'Daily arXiv {today}', 'utf-8').encode()
+    msg['Subject'] = Header(build_email_subject(config), 'utf-8').encode()
 
     try:
         server = smtplib.SMTP(smtp_server, smtp_port)

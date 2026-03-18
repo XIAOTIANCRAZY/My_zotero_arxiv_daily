@@ -1,6 +1,11 @@
 name: Test
 on:
   workflow_dispatch:
+    inputs:
+      target_date:
+        description: Optional arXiv paper date in YYYY-MM-DD. Leave empty to use the latest daily release.
+        required: false
+        type: string
 
 jobs:
   calculate-and-send:
@@ -25,6 +30,7 @@ jobs:
           SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+          TARGET_DATE: ${{ inputs.target_date || secrets.TARGET_DATE }}
           CUSTOM_CONFIG: ${{ vars.CUSTOM_CONFIG }}
         run: |
           export DEBUG=true

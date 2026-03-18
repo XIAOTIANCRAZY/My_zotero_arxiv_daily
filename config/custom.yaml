@@ -23,4 +23,5 @@ source:
 
 executor:
   debug: ${oc.env:DEBUG,null}
+  target_date: ${oc.env:TARGET_DATE,null}
   source: ['arxiv']

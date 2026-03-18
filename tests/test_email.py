@@ -23,6 +23,23 @@ def test_render_email(papers:list[Paper]):
     email_content = render_email(papers)
     assert email_content is not None
 
+def test_render_email_without_affiliations():
+    paper = Paper(
+        source="arxiv",
+        title="Test Paper",
+        authors=["Test Author"],
+        abstract="Test Abstract",
+        url="https://arxiv.org/abs/2512.04296",
+        pdf_url="https://arxiv.org/pdf/2512.04296",
+        tldr="Test TLDR",
+        affiliations=None,
+        score=0.5
+    )
+
+    email_content = render_email([paper])
+
+    assert "Unknown Affiliation" not in email_content
+
 @pytest.mark.ci
 def test_send_email(config,papers:list[Paper]):
     send_email(config, render_email(papers))
