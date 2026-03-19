@@ -7,7 +7,7 @@ on:
         required: false
         type: string
   schedule:
-    - cron: '0 2 * * 1-5'
+    - cron: '45 2 * * 1-5'
 
 jobs:
   calculate-and-send:
@@ -16,8 +16,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          repository: ${{ vars.REPOSITORY }}
-          ref: ${{ vars.REF }}
+          repository: ${{ vars.REPOSITORY || github.repository }}
+          ref: ${{ vars.REF || github.ref_name }}
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v7

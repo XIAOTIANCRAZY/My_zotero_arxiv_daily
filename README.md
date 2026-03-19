@@ -170,15 +170,17 @@ That's all! Now you can test the workflow by manually triggering it:
 
 Then check the log and the receiver email after it finishes.
 
-By default, the main workflow runs at 02:00 UTC on Monday-Friday, which corresponds to 10:00 Beijing time and is late enough to include the full daily arXiv announcement batch. You can change this time by editting the workflow config `.github/workflows/main.yml`.
+By default, the main workflow runs at 02:17 UTC on Monday-Friday, which corresponds to 10:17 Beijing time and is late enough to include the full daily arXiv announcement batch while avoiding the top-of-hour scheduling hotspot of GitHub Actions. You can change this time by editting the workflow config `.github/workflows/main.yml`.
 
 ### Time and backfill notes
 If you use Beijing time / 如果你使用北京时间：
 
-- The scheduled workflow runs at 10:00 Beijing time on Monday-Friday.
-  自动定时任务会在每周一到周五北京时间 10:00 运行。
+- The scheduled workflow runs at 10:17 Beijing time on Monday-Friday.
+  自动定时任务会在每周一到周五北京时间 10:17 运行。
 - This is intentionally later than the daily arXiv announcement release window, so the workflow can retrieve the full daily batch more reliably.
   这个时间刻意晚于 arXiv 每日公告发布时间，因此更容易稳定拿到当天完整批次的论文。
+- It also avoids the start of the hour, which is a common congestion point for GitHub scheduled workflows.
+  同时它也避开了整点，因为整点通常是 GitHub 定时任务最容易拥堵和延迟的时间段。
 - The `Test` workflow is only for debugging and may not return the full paper list.
   `Test` workflow 仅用于调试，可能不会返回完整论文列表。
 - Use `Send emails daily` when you want the full scheduled behavior or a manual backfill.
@@ -201,22 +203,22 @@ According to the arXiv announcement rules:
 For Beijing time users, 20:00 ET is usually 08:00 or 09:00 the next morning in Beijing, depending on daylight saving time.
 对北京时间用户来说，美东时间 20:00 通常对应北京时间次日 08:00 或 09:00，具体取决于美国夏令时。
 
-This repository is configured to run at 10:00 Beijing time on Monday-Friday, so it can retrieve the full daily announcement batch more reliably.
-本仓库默认设置为每周一到周五北京时间 10:00 运行，这样可以更稳定地获取当天完整的 arXiv 公告批次。
+This repository is configured to run at 10:17 Beijing time on Monday-Friday, so it can retrieve the full daily announcement batch more reliably and avoid top-of-hour scheduling contention.
+本仓库默认设置为每周一到周五北京时间 10:17 运行，这样既可以更稳定地获取当天完整的 arXiv 公告批次，也能避开 GitHub 整点调度拥堵。
 
 In normal weeks without holidays, your email schedule is:
 在不考虑节假日的正常情况下，你收到邮件的大致节奏如下：
 
-- Monday 10:00 Beijing time: the batch announced by arXiv on Sunday 20:00 ET.
-  周一北京时间 10:00：收到 arXiv 在美东周日 20:00 公告的那一批论文。
-- Tuesday 10:00 Beijing time: the batch announced by arXiv on Monday 20:00 ET.
-  周二北京时间 10:00：收到 arXiv 在美东周一 20:00 公告的那一批论文。
-- Wednesday 10:00 Beijing time: the batch announced by arXiv on Tuesday 20:00 ET.
-  周三北京时间 10:00：收到 arXiv 在美东周二 20:00 公告的那一批论文。
-- Thursday 10:00 Beijing time: the batch announced by arXiv on Wednesday 20:00 ET.
-  周四北京时间 10:00：收到 arXiv 在美东周三 20:00 公告的那一批论文。
-- Friday 10:00 Beijing time: the batch announced by arXiv on Thursday 20:00 ET.
-  周五北京时间 10:00：收到 arXiv 在美东周四 20:00 公告的那一批论文。
+- Monday 10:17 Beijing time: the batch announced by arXiv on Sunday 20:00 ET.
+  周一北京时间 10:17：收到 arXiv 在美东周日 20:00 公告的那一批论文。
+- Tuesday 10:17 Beijing time: the batch announced by arXiv on Monday 20:00 ET.
+  周二北京时间 10:17：收到 arXiv 在美东周一 20:00 公告的那一批论文。
+- Wednesday 10:17 Beijing time: the batch announced by arXiv on Tuesday 20:00 ET.
+  周三北京时间 10:17：收到 arXiv 在美东周二 20:00 公告的那一批论文。
+- Thursday 10:17 Beijing time: the batch announced by arXiv on Wednesday 20:00 ET.
+  周四北京时间 10:17：收到 arXiv 在美东周三 20:00 公告的那一批论文。
+- Friday 10:17 Beijing time: the batch announced by arXiv on Thursday 20:00 ET.
+  周五北京时间 10:17：收到 arXiv 在美东周四 20:00 公告的那一批论文。
 
 Why there is usually no email on Saturday or Sunday / 为什么周六周日通常没有邮件：
 
