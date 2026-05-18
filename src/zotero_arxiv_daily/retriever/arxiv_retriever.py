@@ -6,6 +6,7 @@ from ..utils import get_target_date
 import feedparser
 from tqdm import tqdm
 from loguru import logger
+import time
 
 
 @register_retriever("arxiv")
@@ -42,10 +43,13 @@ class ArxivRetriever(BaseRetriever):
         raw_papers = []
         bar = tqdm(total=len(all_paper_ids))
         for i in range(0, len(all_paper_ids), 20):
-            search = arxiv.Search(id_list=all_paper_ids[i:i + 20])
-            batch = list(client.results(search))
+            batch_ids = all_paper_ids[i:i + 20]
+            search = arxiv.Search(id_list=batch_ids)
+            batch = self._fetch_with_retry(client, search)
             bar.update(len(batch))
             raw_papers.extend(batch)
+            if i + 20 < len(all_paper_ids):
+                time.sleep(3)
         bar.close()
         return raw_papers
 
@@ -86,6 +90,18 @@ class ArxivRetriever(BaseRetriever):
                 paper_categories.add(primary_category)
             return bool(paper_categories & categories)
         return getattr(paper, "primary_category", None) in categories
+
+    def _fetch_with_retry(self, client: arxiv.Client, search: arxiv.Search, max_retries: int = 5) -> list[ArxivResult]:
+        for attempt in range(max_retries):
+            try:
+                return list(client.results(search))
+            except arxiv.HTTPError as e:
+                if attempt < max_retries - 1:
+                    wait = 30 * (2 ** attempt)
+                    logger.warning(f"arXiv API error (HTTP {e.status}), retrying in {wait}s ({attempt + 1}/{max_retries})")
+                    time.sleep(wait)
+                else:
+                    raise
 
     def convert_to_paper(self, raw_paper: ArxivResult) -> Paper:
         return Paper(
